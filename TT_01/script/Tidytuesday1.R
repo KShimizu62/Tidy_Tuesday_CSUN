@@ -131,5 +131,5 @@ ggplot()+
                  y= location_lat,
                  color="where the cats were found"))+
   scale_x_continuous(limits = c(-6,-3)) + 
-  scale_y_continuous(limits = c(50,51)) +
+  scale_y_continuous(limits = c(50,51)) 
   ggsave(here("TT_01","output","Tidytuesday_01_plot.pdf"))
