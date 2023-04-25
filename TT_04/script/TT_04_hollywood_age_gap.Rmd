@@ -1,0 +1,71 @@
+---
+title: "TT_04_hollywood_age_gap"
+author: "Kenta"
+date: "2023-03-29"
+output: 
+  html_document:
+    toc: TRUE
+    toc_float: TRUE
+    theme: darkly
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.path = "../output/")
+```
+
+# Loading Library
+
+```{r}
+library(tidyverse)
+library(here)
+library(janitor)
+library(tidytuesdayR)
+library(dplyr)
+library(ggplot2)
+```
+
+# Loading Data 
+
+```{r}
+tuesdata <- tidytuesdayR::tt_load('2023-02-14')
+tuesdata <- tidytuesdayR::tt_load(2023, week = 7)
+
+age_gaps <- tuesdata$age_gaps
+```
+# View the data
+
+```{r}
+view(age_gaps)
+```
+
+# Making a Clean Diagram for Age Gaps before 2000's and after 
+
+```{r}
+age_gaps_clean <- age_gaps%>%
+  drop_na()%>%
+  mutate(after_2000 = ifelse(release_year>2000, "After 2000", "Before 2000"))%>%
+  mutate(after_2000= factor(after_2000, levels = c("Before 2000", "After 2000")))%>%
+  group_by(after_2000, age_difference) %>%
+  summarize(mean_age_diff = mean(age_difference))
+
+
+view(age_gaps_clean)
+```
+
+# Making a Plot
+
+```{r}
+age_gaps_plot <- age_gaps_clean%>%
+  drop_na()%>%
+  ggplot(aes(x = after_2000, y = mean_age_diff, fill = after_2000)) +
+  geom_col() +
+  labs(title = "Age Gap Before and After 2000", x = "", y = "Mean Age Difference") +
+  scale_fill_manual(values = c("Before 2000" = "orange", "After 2000" = "green")) +
+  theme_bw()
+
+age_gaps_plot
+```
+
