@@ -1,0 +1,75 @@
+---
+title: "TT_05_deforestation"
+author: "Kenta"
+date: "2023-03-30"
+output: 
+  html_document:
+    toc: TRUE
+    toc_float: TRUE
+    theme: darkly
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.path = "../output/")
+```
+
+# Loading Library
+
+```{r}
+library(tidyverse)
+library(here)
+library(janitor)
+library(tidytuesdayR)
+library(dplyr)
+library(ggplot2)
+library(maps)
+library(mapdata)
+library(mapproj)
+```
+
+# Loading Data
+
+```{r}
+soybean_use <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-04-06/soybean_use.csv')
+```
+
+# View Data
+
+```{r}
+view(soybean_use)
+```
+
+# Making a Clean Diagram
+
+```{r}
+soybean_use_clean <- soybean_use%>%
+  drop_na()%>%
+  filter(entity == "Japan")%>%
+  filter(year > "1999")%>%
+  summarize(mean_human_food = mean(human_food, na.rm = TRUE),
+            mean_animal_feed = mean(animal_feed, na.rm = TRUE),
+            mean_processed = mean(processed, na.rm = TRUE))%>%
+  data.frame(
+    group= c("Human Food", "Animal Food", "Processed Food"),
+    value= c(1003857/41028.567, 113785.7/41028.567, 2985214/41028.567)
+  )
+
+view(soybean_use_clean)
+```
+
+# Making a Pie Chart Out of the Data for Soybean Used in Japan After 2000s 
+
+```{r}
+pie_chart_soybeans_japan <-soybean_use_clean%>%
+  ggplot(aes(x="", y=value, fill=group)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0) +
+  
+  
+pie_chart_soybeans_japan
+```
+
+
