@@ -1,0 +1,74 @@
+---
+title: "TT_03_Script_Bee_Colony_Losses"
+author: "Kenta"
+date: "2023-03-28"
+output: 
+  html_document:
+    toc: TRUE
+    toc_float: TRUE
+    theme: darkly
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.path = "../output/")
+```
+
+# Loading Library
+
+```{r}
+library(tidyverse)
+library(here)
+library(tidytuesdayR)
+library(janitor)
+library(ggplot2)
+```
+
+# Load the Data 
+
+```{r}
+tuesdata <- tidytuesdayR::tt_load('2022-01-11')
+tuesdata <- tidytuesdayR::tt_load(2022, week = 2)
+
+colony <- tuesdata$colony
+```
+
+# View the Data
+
+```{r}
+view(colony)
+```
+
+# Making a Plot for Califoria Bee Colony, that are found vs lost vs added
+
+```{r}
+colony_clean <- colony%>%
+  drop_na()%>%
+  filter(state == "California")%>%
+  pivot_longer(cols = colony_n:colony_reno_pct, 
+               names_to = "Variables", 
+               values_to = "Values")%>%
+  group_by(months, Variables, Values)%>%
+    summarise(Param_means = mean(Values, na.rm = TRUE), # get mean
+            Param_vars = var(Values, na.rm = TRUE))%>%
+  mutate(months= factor(months, levels = c("January-March", 
+"April-June", "July-September", "October-December")))
+      
+view(colony_clean)
+
+bees_in_california <- colony_clean%>%
+  drop_na()%>%
+  ggplot(aes(x=months, y= Values, color = months))+
+  geom_boxplot()+
+  facet_wrap(~Variables, scales = "free")+
+  scale_x_discrete(labels = c("Jan~", "Apr~", "Jul~", "Oct~"))+
+  labs(title = "Bees in California", 
+      x= "Months", 
+      y= "Values", 
+      )
+
+bees_in_california
+```
+

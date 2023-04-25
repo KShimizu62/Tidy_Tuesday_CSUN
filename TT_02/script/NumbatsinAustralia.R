@@ -19,7 +19,7 @@ pikachu<- numbats
 
 view(pikachu)
 
-ggplot()+
+numbatplot <- ggplot()+
   geom_polygon(data = australia, 
                aes(x = long,
                    y = lat,
@@ -33,7 +33,7 @@ ggplot()+
                  y= decimalLatitude,
                  size="numbats location"),
              color="black") +
-  theme(panel.background = element_rect(fill = "lightblue"))+
+  theme(panel.background = element_rect(fill = "lightblue"))
   ggsave(ggsave(here("TT_02","output","Tidytuesday_02_plot.pdf")))
  
-
+numbatplot
