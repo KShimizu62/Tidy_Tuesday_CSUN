@@ -1,0 +1,68 @@
+---
+title: "TT_07_oregon_spotted_frog_script"
+author: "Kenta"
+date: "2023-05-05"
+output: 
+  html_document:
+    toc: TRUE
+    toc_float: TRUE
+    theme: darkly
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.path = "../output/")
+```
+
+# Loading Library
+
+```{r}
+library(tidyverse)
+library(here)
+library(tidytuesdayR)
+library(ggplot2)
+```
+
+# Viewing the Data
+
+```{r}
+
+frogs <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-08-02/frogs.csv')
+
+view(frogs)
+```
+
+# Creating a Clean Data
+
+```{r}
+clean_frogs <- frogs%>%
+  drop_na()%>%
+  select(c(HabType, UTME_83, UTMN_83))%>%
+  pivot_longer(cols = UTME_83:UTMN_83, 
+               names_to = "Variables", 
+               values_to = "Values")%>%
+   group_by(Variables, HabType) %>% 
+  summarise(mean_vals = mean(Values, na.rm = TRUE), 
+            sd_vals = sd(Values, na.rm = TRUE))
+
+  
+clean_frogs
+```
+
+# # Creating a Plot for Mean and Standard Deviation for UTM Coordinate 
+
+```{r}
+plot_frog_UTM <- clean_frogs%>%
+   ggplot(aes(x=sd_vals, y= mean_vals, color = HabType))+
+  geom_line()+
+  labs(title = "Mean and Standard Deviation for UTM Coordinate",
+       x = "UTM SD Values",
+       y = "UTM Mean Values",
+       color = "Group") +
+  theme_bw()
+
+plot_frog_UTM
+```
+
