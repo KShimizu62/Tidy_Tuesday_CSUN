@@ -1,0 +1,72 @@
+---
+title: "TT_08_childcare_cost"
+author: "Kenta"
+date: "2023-05-11"
+output: 
+  html_document:
+    toc: TRUE
+    toc_float: TRUE
+    theme: darkly
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.path = "../output/")
+```
+
+# Loading Library
+
+```{r}
+library(tidyverse)
+library(here)
+library(tidytuesdayR)
+library(ggplot2)
+library(png)
+library(magick)
+```
+
+# Viewing the Data
+
+```{r}
+
+childcare_costs <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-05-09/childcare_costs.csv')
+counties <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-05-09/counties.csv')
+```
+
+# Creating a Clean Data
+
+```{r}
+childcare_cost_clean <- childcare_costs%>%
+  drop_na()%>%
+  select(mc_infant, mc_toddler, mc_preschool, mfcc_infant, mfcc_toddler, mfcc_preschool)%>%
+  pivot_longer(cols = mc_infant:mfcc_preschool, 
+               names_to = "Variables", 
+               values_to = "Values")%>%
+   group_by(Variables) %>% 
+  summarise(mean_vals = mean(Values, na.rm = TRUE), 
+            sd_vals = sd(Values, na.rm = TRUE))
+
+view(childcare_cost_clean)
+```
+
+# Plotting the Childcare Cost from Infant to Preschool Center Based vs Childcare
+
+```{r}
+childcare_cost_mean_sd_plot <-childcare_cost_clean%>%
+  mutate(Variables= str_trim(Variables))%>%
+  mutate(Variables= factor(Variables, levels = c("mc_infant", "mfcc_infant", "mc_toddler", "mfcc_toddler", "mc_preschool", "mfcc_preschool")))%>%
+  ggplot(aes(x=Variables, y=mean_vals, color=Variables))+
+  geom_col()+
+  labs(title = "Childcare Cost from Infant to Preschool Center Based vs Childcare",
+       x = "Childcare Age",
+       y = "Mean Cost of Childcare",
+       color = "Group") +
+  theme_bw()+
+   scale_x_discrete(labels = function(x) str_wrap(x, width = 0.5))+
+  scale_fill_gradient(low = "blue", high = "red")
+
+childcare_cost_mean_sd_plot
+```
+
