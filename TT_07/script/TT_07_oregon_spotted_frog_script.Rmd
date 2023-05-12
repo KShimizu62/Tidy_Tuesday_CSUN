@@ -23,6 +23,8 @@ library(tidyverse)
 library(here)
 library(tidytuesdayR)
 library(ggplot2)
+library(png)
+library(patchwork)
 ```
 
 # Viewing the Data
@@ -39,30 +41,36 @@ view(frogs)
 ```{r}
 clean_frogs <- frogs%>%
   drop_na()%>%
-  select(c(HabType, UTME_83, UTMN_83))%>%
-  pivot_longer(cols = UTME_83:UTMN_83, 
-               names_to = "Variables", 
-               values_to = "Values")%>%
-   group_by(Variables, HabType) %>% 
-  summarise(mean_vals = mean(Values, na.rm = TRUE), 
-            sd_vals = sd(Values, na.rm = TRUE))
+  select(Female, Water)
+  
 
   
-clean_frogs
+view(clean_frogs)
 ```
 
 # # Creating a Plot for Mean and Standard Deviation for UTM Coordinate 
 
 ```{r}
-plot_frog_UTM <- clean_frogs%>%
-   ggplot(aes(x=sd_vals, y= mean_vals, color = HabType))+
-  geom_line()+
-  labs(title = "Mean and Standard Deviation for UTM Coordinate",
-       x = "UTM SD Values",
-       y = "UTM Mean Values",
-       color = "Group") +
+plot_frog_female <- clean_frogs%>%
+   ggplot(aes(x= Water, y= Female == 1, color = Female))+
+  geom_col()+
+  labs(title = "Females Surviving in the Wild",
+       x = "Water field",
+       y = "Number of Oregon Frogs",
+       fill = "Group") +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 0.5))
   theme_bw()
 
-plot_frog_UTM
+plot_frog_male <- clean_frogs%>%
+   ggplot(aes(x= Water, y= Female == 0, color = Female))+
+  geom_col()+
+  labs(title = "Males Surviving in the Wild",
+       x = "Water field",
+       y = "Number of Oregon Frogs",
+       fill = "Group") +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 0.5))
+  theme_bw()
+
+plot_frog_female+plot_frog_male
 ```
 
